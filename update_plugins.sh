@@ -7,7 +7,7 @@ do
   if [[ "$?" -eq '0' ]]
   then
     hg --cwd $plugin pull --insecure -u &>/dev/null
-    tar --exclude=.hg --exclude=.qm -cjf $plugin.tar.bz2 $plugin
+    tar --exclude=.hg --exclude=.hg* --exclude=.qm -cjf $plugin.tar.bz2 $plugin
     echo "updated: $plugin"
   fi
 done
