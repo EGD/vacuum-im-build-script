@@ -28,7 +28,8 @@ fi
 sed -i 's/\r$//' $SOURCE/vacuum-im/AUTHORS $SOURCE/vacuum-im/CHANGELOG $SOURCE/vacuum-im/COPYING $SOURCE/vacuum-im/README $SOURCE/vacuum-im/INSTALL $SOURCE/vacuum-im/TRANSLATORS
 
 rm -f $TARGET/vacuum-im-r*.tar.bz2
-tar --exclude=.svn --exclude=.qm --exclude=*/resources/emoticons/kolobok_* -C $SOURCE -cjf $TARGET/vacuum-im-r$SVNID.tar.bz2 vacuum-im/
+tar --exclude=.svn --exclude=.qm --exclude=*/resources/emoticons/kolobok_* -cjf $TARGET/vacuum-im-r$SVNID.tar.bz2 -C $SOURCE vacuum-im/
+svn revert $SOURCE/vacuum-im/AUTHORS $SOURCE/vacuum-im/CHANGELOG $SOURCE/vacuum-im/COPYING $SOURCE/vacuum-im/README $SOURCE/vacuum-im/INSTALL $SOURCE/vacuum-im/TRANSLATORS &
 
 osc ar $TARGET
 osc commit -m "updated to revision $SVNID" $TARGET

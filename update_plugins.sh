@@ -1,13 +1,16 @@
 #! /bin/bash
 
-for plugin in $(ls | grep vacuum-im-plugins-)
+SOURCE=$HOME/Документы/projects/Vacuum-IM
+
+for plugin_dir in $SOURCE/vacuum-im-plugins-*
 do
-  hg --cwd $plugin incoming --insecure &>/dev/null
+  hg --cwd $plugin_dir incoming --insecure &>/dev/null
   
   if [[ "$?" -eq '0' ]]
   then
-    hg --cwd $plugin pull --insecure -u &>/dev/null
-    tar --exclude=.hg --exclude=.hg* --exclude=.qm -cjf $plugin.tar.bz2 $plugin
-    echo "updated: $plugin"
+    plagin_name=$(basename "$plugin_dir")
+    hg --cwd $plugin_dir pull --insecure -u &>/dev/null
+    tar --exclude=.hg --exclude=.hg* --exclude=.qm -cjf $plugin_dir.tar.bz2 -C $SOURCE $plugin_name
+    echo "updated: $plagin_name" 
   fi
 done
