@@ -8,9 +8,9 @@ do
   
   if [[ "$?" -eq '0' ]]
   then
-    plagin_name=$(basename "$plugin_dir")
+    plugin_name=$(basename "$plugin_dir")
     hg --cwd $plugin_dir pull --insecure -u &>/dev/null
     tar --exclude=.hg --exclude=.hg* --exclude=.qm -cjf $plugin_dir.tar.bz2 -C $SOURCE $plugin_name
-    echo "updated: $plagin_name" 
+    echo "updated: $plugin_name" 
   fi
 done
