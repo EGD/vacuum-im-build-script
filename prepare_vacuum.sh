@@ -32,7 +32,7 @@ sed -i 's/\r$//' $SOURCE/vacuum-im/AUTHORS \
 				 $SOURCE/vacuum-im/INSTALL \
 				 $SOURCE/vacuum-im/TRANSLATORS
 
-rm -f $TARGET/vacuum-im-r*.tar.bz2
+rm -f $TARGET/vacuum-im-r*.tar.xz
 tar --exclude=.svn --exclude=.qm --exclude=*/resources/emoticons/kolobok_* \
     -cJf $TARGET/vacuum-im-r$SVN_ID.tar.xz \
     -C $SOURCE \
