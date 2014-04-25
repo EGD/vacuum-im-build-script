@@ -25,12 +25,12 @@ then
   sed -i "s;\(%define libname libvacuumutils\)[[:digit:]]\{1,\};\1$NEW_UTILS_VERSION;" $TARGET/vacuum-im.spec
 fi
 
-sed -i 's/\r$//' $SOURCE/vacuum-im/AUTHORS \
-				 $SOURCE/vacuum-im/CHANGELOG \
-				 $SOURCE/vacuum-im/COPYING \
-				 $SOURCE/vacuum-im/README \
-				 $SOURCE/vacuum-im/INSTALL \
-				 $SOURCE/vacuum-im/TRANSLATORS
+dos2unix $SOURCE/vacuum-im/AUTHORS \
+	 $SOURCE/vacuum-im/CHANGELOG \
+	 $SOURCE/vacuum-im/COPYING \
+	 $SOURCE/vacuum-im/README \
+	 $SOURCE/vacuum-im/INSTALL \
+	 $SOURCE/vacuum-im/TRANSLATORS
 
 rm -f $TARGET/vacuum-im-r*.tar.xz
 tar --exclude=.svn --exclude=.qm --exclude=*/resources/emoticons/kolobok_* \
