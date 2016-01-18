@@ -1,31 +1,41 @@
 #!/bin/bash
 
-SOURCE=$HOME/Документы/projects/Vacuum-IM
-TARGET=$HOME/Документы/projects/Vacuum-IM/home\:EGDFree\:vacuum-im\:git/vacuum-im
+SOURCE=$HOME/projects/Vacuum-IM
+TARGET=$HOME/projects/Vacuum-IM/home\:EGDFree\:vacuum-im\:git/vacuum-im
 
-SVN_ID_Old=$(svn info $SOURCE/vacuum-im | grep 'Last Changed Rev: ' | grep -P -o '\d+')
+GIT_DIR=$SOURCE/vacuum-im
 
-svn up $SOURCE/vacuum-im
+git -C $GIT_DIR fetch --recurse-submodules=yes -q origin master
 
-SVN_ID=$(svn info $SOURCE/vacuum-im | grep 'Last Changed Rev: ' | grep -P -o '\d+')
+NO_NEED_WORK=$(git -C "$GIT_DIR" rev-list --count master...origin/master)
 
-if [[ $SVN_ID -eq $SVN_ID_Old ]]
+if [[ $NO_NEED_WORK -eq 0 ]]
 then
   echo 'Last version now.'
   exit 0
 fi
 
-sed -i "s/\(%define rbuild \)[[:digit:]]*/\1$SVN_ID/" $TARGET/vacuum-im.spec
+git -C $GIT_DIR checkout -q master
+git -C $GIT_DIR pull -q origin master
+
+GIT_TIME=$(git -C $GIT_DIR log -n 1 --format='%ct')
+GIT_DATE=$(date -d "@$GIT_TIME" +%Y%m%d)
+GIT_HASH=$(git -C $GIT_DIR log -n 1 --format='%h')
+
+sed -i -r -e "/%define rdate / s/[^[:space:]]*$/$GIT_DATE/" \
+	  -e "/%define rtime / s/[^[:space:]]*$/$GIT_TIME/" \
+	  -e "/%define rhash / s/[^[:space:]]*$/$GIT_HASH/" \
+	$TARGET/vacuum-im.spec
 
 CURRENT_UTILS_VERSION=$(grep '%define libname ' $TARGET/vacuum-im.spec | grep -P -o '\d+$')
 NEW_UTILS_VERSION=$(grep 'set(VACUUM_UTILS_ABI ' $SOURCE/vacuum-im/src/make/config.cmake | grep -Po '\d+')
 
 if [[ "${CURRENT_UTILS_VERSION-0}" != "${NEW_UTILS_VERSION-0}" ]]
 then
-  sed -i "s;\(%define libname libvacuumutils\)[[:digit:]]\{1,\};\1$NEW_UTILS_VERSION;" $TARGET/vacuum-im.spec
+  sed -i -E "s/(%define libname libvacuumutils)[[:digit:]]*/\1$NEW_UTILS_VERSION/" $TARGET/vacuum-im.spec
 fi
 
-dos2unix $SOURCE/vacuum-im/AUTHORS \
+dos2unix -q -k $SOURCE/vacuum-im/AUTHORS \
 	 $SOURCE/vacuum-im/CHANGELOG \
 	 $SOURCE/vacuum-im/COPYING \
 	 $SOURCE/vacuum-im/README \
@@ -33,19 +43,20 @@ dos2unix $SOURCE/vacuum-im/AUTHORS \
 	 $SOURCE/vacuum-im/TRANSLATORS
 
 rm -f $TARGET/vacuum-im-r*.tar.xz
-tar --exclude=.svn --exclude=.qm --exclude=*/resources/emoticons/kolobok_* \
-    -cJf $TARGET/vacuum-im-r$SVN_ID.tar.xz \
+tar --exclude-vcs --exclude='*.qm' --exclude='*/resources/emoticons/kolobok_*' \
+    -cJf "$TARGET/vacuum-im-r$GIT_HASH.tar.xz" \
     -C $SOURCE \
     vacuum-im/
-svn revert $SOURCE/vacuum-im/AUTHORS \
-	   $SOURCE/vacuum-im/CHANGELOG \
-	   $SOURCE/vacuum-im/COPYING \
-	   $SOURCE/vacuum-im/README \
-	   $SOURCE/vacuum-im/INSTALL \
-	   $SOURCE/vacuum-im/TRANSLATORS &
+git -C $GIT_DIR checkout -- \
+	     AUTHORS \
+	     CHANGELOG \
+	     COPYING \
+	     README \
+	     INSTALL \
+	     TRANSLATORS &
 
 osc ar $TARGET
-osc commit -m "Update to revision $SVN_ID." $TARGET
+osc commit -m "Update to revision $GIT_HASH." $TARGET
 
 echo 'Done.'
 exit 0
