@@ -1,6 +1,6 @@
 #! /bin/bash
 
-SOURCE=$HOME/Документы/projects/Vacuum-IM
+SOURCE=$HOME/projects/Vacuum-IM
 
 for plugin_dir in $SOURCE/vacuum-im-plugins-*
 do
@@ -10,7 +10,7 @@ do
   then
     plugin_name=$(basename "$plugin_dir")
     hg --cwd $plugin_dir pull --insecure -u &>/dev/null
-    tar --exclude=.hg --exclude=.hg* --exclude=.qm -cJf $plugin_dir.tar.xz -C $SOURCE $plugin_name
+    tar --exclude-vcs --exclude='.hg*' --exclude='*.qm' --exclude='*.pro.user' -cJf "$plugin_dir.tar.xz" -C "$SOURCE" "$plugin_name"
     echo "updated: $plugin_name" 
   fi
 done
